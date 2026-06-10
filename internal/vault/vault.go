@@ -17,8 +17,14 @@ func NewVault() *Vault {
 	}
 }
 
-func (v *Vault) AddEntry(entry *Entry) {
+func (v *Vault) AddEntry(entry *Entry) error {
+	_, exists := v.EntryMap[entry.Name]
+	if exists {
+		return errors.ErrEntryNameTaken
+	}
+
 	v.EntryMap[entry.Name] = entry
+	return nil
 }
 
 func (v *Vault) DeleteEntry(name string) {

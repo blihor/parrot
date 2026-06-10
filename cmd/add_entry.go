@@ -46,7 +46,9 @@ var cmdAddEntry = &cobra.Command{
 			return err
 		}
 
-		vault.AddEntry(newEntry)
+		if err = vault.AddEntry(newEntry); err != nil {
+			return err
+		}
 
 		store.WriteVault([]byte(""), vault)
 		return nil

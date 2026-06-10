@@ -8,4 +8,5 @@ var (
 	ErrHashNotEqual            = errors.New("hash does not match")
 	ErrShortCipher             = errors.New("cipher is to short")
 	ErrEntryNotFound           = errors.New("entry not found")
+	ErrEntryNameTaken          = errors.New("Provided name is already taken")
 )
