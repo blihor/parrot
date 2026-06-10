@@ -27,4 +27,5 @@ func init() {
 	rootCmd.AddCommand(cmdAddEntry)
 	rootCmd.AddCommand(cmdDeleteEntry)
 	rootCmd.AddCommand(cmdListEntry)
+	rootCmd.AddCommand(cmdGeneratePassword)
 }
