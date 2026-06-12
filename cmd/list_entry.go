@@ -26,7 +26,7 @@ var cmdListEntry = &cobra.Command{
 		}
 
 		if len(args) > 0 {
-			entryName := args[1]
+			entryName := args[0]
 			entry, err := vault.GetEntryByName(entryName)
 			if err != nil {
 				return err
