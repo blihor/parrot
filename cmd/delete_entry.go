@@ -27,7 +27,7 @@ var cmdDeleteEntry = &cobra.Command{
 		entryName := args[0]
 		vault.DeleteEntry(entryName)
 
-		err = store.WriteVaultAndHashSalt(key, hs, vault)
+		err = store.WriteStorage(key, hs, vault)
 		if err != nil {
 			return err
 		}

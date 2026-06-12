@@ -58,7 +58,7 @@ var cmdAddEntry = &cobra.Command{
 			return err
 		}
 
-		err = store.WriteVaultAndHashSalt(key, hs, vault)
+		err = store.WriteStorage(key, hs, vault)
 		if err != nil {
 			return err
 		}

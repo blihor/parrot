@@ -56,7 +56,7 @@ func SetPassword(newMasterPassword string, key []byte, store *storage.Storage) e
 	// Strip hash of encryption key
 	newHs.Hash = newHs.Hash[:hashLen]
 
-	return store.WriteVaultAndHashSalt(newKey, newHs, vault)
+	return store.WriteStorage(newKey, newHs, vault)
 }
 
 func PromptForPassword() (string, error) {

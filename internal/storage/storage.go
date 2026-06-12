@@ -71,8 +71,7 @@ func (s *Storage) ReadVault(key []byte) (*Vault, error) {
 	return vault, nil
 }
 
-// TODO: rename on WriteStorage
-func (s *Storage) WriteVaultAndHashSalt(key []byte, hashSalt *HashSalt, v *Vault) error {
+func (s *Storage) WriteStorage(key []byte, hashSalt *HashSalt, v *Vault) error {
 	vaultJSON, err := json.Marshal(v)
 	if err != nil {
 		return err
