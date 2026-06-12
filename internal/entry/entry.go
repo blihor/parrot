@@ -17,7 +17,6 @@ type Entry struct {
 
 func (e *Entry) String() string {
 	var lines []string
-	lines = append(lines, fmt.Sprintf("Name: %s\n", e.Name))
 
 	if e.Url != "" {
 		lines = append(lines, fmt.Sprintf("Url: %s\n", e.Url))
@@ -31,6 +30,24 @@ func (e *Entry) String() string {
 
 	lines = append(lines, fmt.Sprintf("Password: %s\n", e.Password))
 
+	// Find the line with max length to center the name
+	max := 0
+	for _, l := range lines {
+		if len(l) > max {
+			max = len(l)
+		}
+	}
+
+	dividerLen := max - len(e.Name)
+	halfDividerLen := dividerLen / 2
+	nameLine := fmt.Sprintf(
+		"\n%s%s%s\n\n",
+		strings.Repeat("-", halfDividerLen),
+		e.Name,
+		strings.Repeat("-", dividerLen-halfDividerLen),
+	)
+
+	lines = append([]string{nameLine}, lines...)
 	return strings.Join(lines, "")
 }
 
