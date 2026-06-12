@@ -2,11 +2,14 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
+	"syscall"
 
 	"github.com/blihor/parrot/internal/crypto"
 	apperrors "github.com/blihor/parrot/internal/errors"
 	"github.com/blihor/parrot/internal/storage"
+	"golang.org/x/term"
 )
 
 type (
@@ -54,6 +57,22 @@ func SetPassword(newMasterPassword string, key []byte, store *storage.Storage) e
 	return store.WriteVaultAndHashSalt(newKey, newHs, vault)
 }
 
+func PromptForPassword() (string, error) {
+	fmt.Print("Enter master password: ")
+
+	masterPassword, err := term.ReadPassword(syscall.Stdin)
+	if err != nil {
+		return "", err
+	}
+	if len(masterPassword) == 0 {
+		return "", apperrors.ErrEmptyPassword
+	}
+
+	fmt.Println()
+
+	return string(masterPassword), nil
+}
+
 // Authenticate reads hash and salt from file, compares it with actually generated
 // hash out of masterPassword and returns hashSalt struct with the hash and the
 // salt, and encryption key. If file doesn't exists it hashes masterPassword
@@ -62,6 +81,13 @@ func SetPassword(newMasterPassword string, key []byte, store *storage.Storage) e
 func Authenticate(masterPassword string, store *storage.Storage) (*crypto.HashSalt, []byte, error) {
 	var hs *storage.HashSalt
 	var err error
+
+	if len(masterPassword) == 0 {
+		masterPassword, err = PromptForPassword()
+		if err != nil {
+			return nil, nil, err
+		}
+	}
 
 	hs, err = store.ReadHashSalt()
 	if err != nil {
