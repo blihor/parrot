@@ -75,35 +75,24 @@ func PromptForPassword() (string, error) {
 
 // Authenticate reads hash and salt from file, compares it with actually generated
 // hash out of masterPassword and returns hashSalt struct with the hash and the
-// salt, and encryption key. If file doesn't exists it hashes masterPassword
-// and returns same results(hashSalf and key) as in former case, but without any
-// validation since it is the first time password is set
+// salt, and encryption key. If file doesn't exists it returns ErrPasswordNotSet.
+// User will be prompted for password if one wasn't provided
 func Authenticate(masterPassword string, store *storage.Storage) (*crypto.HashSalt, []byte, error) {
 	var hs *storage.HashSalt
 	var err error
 
-	if len(masterPassword) == 0 {
-		masterPassword, err = PromptForPassword()
-		if err != nil {
+	hs, err = store.ReadHashSalt()
+	if err != nil {
+		if errors.Is(err, apperrors.ErrUnmarshalFailed) || errors.Is(err, fs.ErrNotExist) {
+			return nil, nil, apperrors.ErrPasswordNotSet
+		} else {
 			return nil, nil, err
 		}
 	}
 
-	hs, err = store.ReadHashSalt()
-	if err != nil {
-		if errors.Is(err, apperrors.ErrUnmarshalFailed) || errors.Is(err, fs.ErrNotExist) {
-			hs, err = HashPassword(masterPassword)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			// Strip hash of encryption key
-			hashLen := len(hs.Hash) / 2
-			encryptionKey := hs.Hash[hashLen:]
-			hs.Hash = hs.Hash[:hashLen]
-
-			return hs, encryptionKey, nil
-		} else {
+	if len(masterPassword) == 0 {
+		masterPassword, err = PromptForPassword()
+		if err != nil {
 			return nil, nil, err
 		}
 	}

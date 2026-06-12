@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"errors"
+
 	"github.com/blihor/parrot/internal/auth"
+	apperrors "github.com/blihor/parrot/internal/errors"
 	"github.com/blihor/parrot/internal/storage"
 	"github.com/spf13/cobra"
 )
@@ -14,7 +17,7 @@ var cmdSetPassword = &cobra.Command{
 		store := storage.NewStorage()
 
 		_, key, err := auth.Authenticate(masterPassword, store)
-		if err != nil {
+		if err != nil && !errors.Is(err, apperrors.ErrPasswordNotSet) {
 			return err
 		}
 
