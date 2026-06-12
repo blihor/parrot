@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/blihor/parrot/internal/auth"
 	"github.com/blihor/parrot/internal/storage"
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,13 @@ var cmdListEntry = &cobra.Command{
 	Long:  `List entry with the provided name or all entries if name was omitted`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		store := storage.NewStorage()
-		vault, err := store.ReadVault([]byte(""))
+
+		_, key, err := auth.Authenticate(masterPassword, store)
+		if err != nil {
+			return err
+		}
+
+		vault, err := store.ReadVault(key)
 		if err != nil {
 			return err
 		}
@@ -36,7 +43,4 @@ var cmdListEntry = &cobra.Command{
 
 		return nil
 	},
-}
-
-func init() {
 }

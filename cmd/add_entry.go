@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/blihor/parrot/internal/auth"
 	"github.com/blihor/parrot/internal/entry"
 	"github.com/blihor/parrot/internal/generator"
 	"github.com/blihor/parrot/internal/storage"
@@ -19,10 +20,17 @@ var cmdAddEntry = &cobra.Command{
 	Long: `Add a new entry of a provided name. All fields besides name are 
         optional. If password is not provided it will be generated randomly.
         `,
-	Args: cobra.ExactArgs(1),
+	Args:             cobra.ExactArgs(1),
+	TraverseChildren: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		store := storage.NewStorage()
-		vault, err := store.ReadVault([]byte(""))
+
+		hs, key, err := auth.Authenticate(masterPassword, store)
+		if err != nil {
+			return err
+		}
+
+		vault, err := store.ReadVault(key)
 		if err != nil {
 			return err
 		}
@@ -50,7 +58,11 @@ var cmdAddEntry = &cobra.Command{
 			return err
 		}
 
-		store.WriteVault([]byte(""), vault)
+		err = store.WriteVaultAndHashSalt(key, hs, vault)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	},
 }

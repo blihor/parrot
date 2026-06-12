@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/blihor/parrot/internal/auth"
 	"github.com/blihor/parrot/internal/storage"
 	"github.com/spf13/cobra"
 )
@@ -12,7 +13,13 @@ var cmdDeleteEntry = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		store := storage.NewStorage()
-		vault, err := store.ReadVault([]byte(""))
+
+		hs, key, err := auth.Authenticate(masterPassword, store)
+		if err != nil {
+			return err
+		}
+
+		vault, err := store.ReadVault(key)
 		if err != nil {
 			return err
 		}
@@ -20,10 +27,11 @@ var cmdDeleteEntry = &cobra.Command{
 		entryName := args[0]
 		vault.DeleteEntry(entryName)
 
-		store.WriteVault([]byte(""), vault)
+		err = store.WriteVaultAndHashSalt(key, hs, vault)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	},
-}
-
-func init() {
 }

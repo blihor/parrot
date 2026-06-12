@@ -2,7 +2,7 @@ package vault
 
 import (
 	"github.com/blihor/parrot/internal/entry"
-	"github.com/blihor/parrot/internal/errors"
+	apperrors "github.com/blihor/parrot/internal/errors"
 )
 
 type Entry = entry.Entry
@@ -20,7 +20,7 @@ func NewVault() *Vault {
 func (v *Vault) AddEntry(entry *Entry) error {
 	_, exists := v.EntryMap[entry.Name]
 	if exists {
-		return errors.ErrEntryNameTaken
+		return apperrors.ErrEntryNameTaken
 	}
 
 	v.EntryMap[entry.Name] = entry
@@ -34,7 +34,7 @@ func (v *Vault) DeleteEntry(name string) {
 func (v *Vault) GetEntryByName(name string) (*Entry, error) {
 	entry, exists := v.EntryMap[name]
 	if !exists {
-		return nil, errors.ErrEntryNotFound
+		return nil, apperrors.ErrEntryNotFound
 	}
 
 	return entry, nil

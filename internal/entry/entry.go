@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/blihor/parrot/internal/errors"
+	apperrors "github.com/blihor/parrot/internal/errors"
 )
 
 type Entry struct {
@@ -42,11 +42,11 @@ func NewEntry(
 	password string,
 ) (*Entry, error) {
 	if name == "" {
-		return nil, errors.ErrNoEntryNameProvided
+		return nil, apperrors.ErrNoEntryNameProvided
 	}
 
 	if password == "" {
-		return nil, errors.ErrNoEntryPasswordProvided
+		return nil, apperrors.ErrNoEntryPasswordProvided
 	}
 
 	return &Entry{
