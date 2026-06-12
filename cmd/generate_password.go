@@ -17,7 +17,6 @@ var (
 var cmdGeneratePassword = &cobra.Command{
 	Use:   "gen [OPTIONS]",
 	Short: "Generates random password",
-	Long:  `List entry with the provided name or all entries if name was omitted`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		length := 16
 		var err error
