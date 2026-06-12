@@ -12,6 +12,8 @@ import (
 	"golang.org/x/term"
 )
 
+const maxAttempts = 5
+
 type (
 	Argon2idHash = crypto.Argon2idHash
 	HashSalt     = crypto.HashSalt
@@ -90,16 +92,42 @@ func Authenticate(masterPassword string, store *storage.Storage) (*crypto.HashSa
 		}
 	}
 
-	if len(masterPassword) == 0 {
-		masterPassword, err = PromptForPassword()
+	failedAttempts := 0
+	var encryptionKey []byte
+
+	for failedAttempts < maxAttempts {
+		if len(masterPassword) == 0 {
+			masterPassword, err = PromptForPassword()
+			if err != nil {
+				if errors.Is(err, apperrors.ErrEmptyPassword) {
+					fmt.Printf("Password is empty. Please provide actual password\n")
+					continue
+				}
+
+				return nil, nil, err
+			}
+		}
+
+		encryptionKey, err = ValidatePassword(masterPassword, hs)
 		if err != nil {
+			if errors.Is(err, apperrors.ErrHashNotEqual) {
+				masterPassword = ""
+				failedAttempts++
+
+				fmt.Printf("%s\n\n", err.Error())
+				fmt.Printf("Attempts left: %d\n\n", maxAttempts-failedAttempts)
+
+				continue
+			}
+
 			return nil, nil, err
 		}
+
+		break
 	}
 
-	encryptionKey, err := ValidatePassword(masterPassword, hs)
-	if err != nil {
-		return nil, nil, err
+	if failedAttempts == maxAttempts {
+		return nil, nil, apperrors.ErrAttemptsFailed
 	}
 
 	return hs, encryptionKey, nil
