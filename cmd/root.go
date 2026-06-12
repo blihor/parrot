@@ -15,6 +15,7 @@ var rootCmd = &cobra.Command{
         built-in configurable password generator. It operates on entries, which
         are combination of the name or url, email or username and password.
         `,
+	SilenceUsage: true,
 }
 
 func Execute() {

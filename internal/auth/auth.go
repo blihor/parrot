@@ -115,7 +115,10 @@ func Authenticate(masterPassword string, store *storage.Storage) (*crypto.HashSa
 				failedAttempts++
 
 				fmt.Printf("%s\n\n", err.Error())
-				fmt.Printf("Attempts left: %d\n\n", maxAttempts-failedAttempts)
+				fmt.Printf(
+					"Attempts left before deleting storage: %d\n\n",
+					maxAttempts-failedAttempts,
+				)
 
 				continue
 			}
@@ -127,6 +130,7 @@ func Authenticate(masterPassword string, store *storage.Storage) (*crypto.HashSa
 	}
 
 	if failedAttempts == maxAttempts {
+		store.DeleteStorage()
 		return nil, nil, apperrors.ErrAttemptsFailed
 	}
 
