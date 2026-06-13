@@ -29,6 +29,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&masterPassword, "master", "m", "", "Master password to access vault")
 	rootCmd.AddCommand(cmdAddEntry)
 	rootCmd.AddCommand(cmdDeleteEntry)
+	rootCmd.AddCommand(cmdEditEntry)
 	rootCmd.AddCommand(cmdListEntry)
 	rootCmd.AddCommand(cmdGeneratePassword)
 	rootCmd.AddCommand(cmdSetPassword)

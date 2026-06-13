@@ -27,6 +27,31 @@ func (v *Vault) AddEntry(entry *Entry) error {
 	return nil
 }
 
+func (v *Vault) EditEntry(name string, updateData *Entry) error {
+	entry, err := v.GetEntryByName(name)
+	if err != nil {
+		return err
+	}
+
+	if updateData.Name != "_" {
+		entry.Name = updateData.Name
+	}
+	if updateData.Password != "_" {
+		entry.Password = updateData.Password
+	}
+	if updateData.Url != "_" {
+		entry.Url = updateData.Url
+	}
+	if updateData.Email != "_" {
+		entry.Email = updateData.Email
+	}
+	if updateData.Username != "_" {
+		entry.Username = updateData.Username
+	}
+
+	return nil
+}
+
 func (v *Vault) DeleteEntry(name string) {
 	delete(v.EntryMap, name)
 }
