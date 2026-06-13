@@ -4,6 +4,7 @@ import (
 	"github.com/blihor/parrot/internal/auth"
 	"github.com/blihor/parrot/internal/storage"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var cmdDeleteEntry = &cobra.Command{
@@ -11,14 +12,13 @@ var cmdDeleteEntry = &cobra.Command{
 	Short: "delete entry",
 	Long:  `delete entry with the provided name`,
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		store := storage.NewStorage()
+	RunE: WithConfig(func(cmd *cobra.Command, args []string, v *viper.Viper) error {
+		store := storage.NewStorage(v.GetString("vault.filepath"))
 
-		hs, key, err := auth.Authenticate(masterPassword, store)
+		hs, key, err := auth.Authenticate(masterPassword, store, v)
 		if err != nil {
 			return err
 		}
-
 		vault, err := store.ReadVault(key)
 		if err != nil {
 			return err
@@ -33,5 +33,5 @@ var cmdDeleteEntry = &cobra.Command{
 		}
 
 		return nil
-	},
+	}),
 }

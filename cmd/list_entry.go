@@ -6,16 +6,17 @@ import (
 	"github.com/blihor/parrot/internal/auth"
 	"github.com/blihor/parrot/internal/storage"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var cmdListEntry = &cobra.Command{
 	Use:   "list [NAME] ",
 	Short: "List entry/entries",
 	Long:  `List entry with the provided name or all entries if name was omitted`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		store := storage.NewStorage()
+	RunE: WithConfig(func(cmd *cobra.Command, args []string, v *viper.Viper) error {
+		store := storage.NewStorage(v.GetString("vault.filepath"))
 
-		_, key, err := auth.Authenticate(masterPassword, store)
+		_, key, err := auth.Authenticate(masterPassword, store, v)
 		if err != nil {
 			return err
 		}
@@ -42,5 +43,5 @@ var cmdListEntry = &cobra.Command{
 		}
 
 		return nil
-	},
+	}),
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/blihor/parrot/internal/crypto"
 	apperrors "github.com/blihor/parrot/internal/errors"
 	"github.com/blihor/parrot/internal/storage"
+	"github.com/spf13/viper"
 	"golang.org/x/term"
 )
 
@@ -21,8 +22,14 @@ type (
 
 // ValidatePassword validates masterPassword and, if successfull, returns
 // encryption key
-func ValidatePassword(masterPassword string, hs *HashSalt) ([]byte, error) {
-	argon2 := crypto.NewArgon2idHash(1, 64*1024, 4, 32, 32)
+func ValidatePassword(masterPassword string, hs *HashSalt, v *viper.Viper) ([]byte, error) {
+	argon2 := crypto.NewArgon2idHash(
+		v.GetUint32("argon.time"),
+		v.GetUint32("argon.mem"),
+		v.GetUint8("argon.threads"),
+		v.GetUint32("argon.keylen"),
+		v.GetUint32("argon.saltlen"),
+	)
 
 	encryptionKey, err := argon2.Compare(hs.Hash, hs.Salt, []byte(masterPassword))
 	if err != nil {
@@ -32,19 +39,25 @@ func ValidatePassword(masterPassword string, hs *HashSalt) ([]byte, error) {
 	return encryptionKey, nil
 }
 
-func HashPassword(masterPassword string) (*HashSalt, error) {
-	argon2 := crypto.NewArgon2idHash(1, 64*1024, 4, 32, 32)
+func HashPassword(masterPassword string, v *viper.Viper) (*HashSalt, error) {
+	argon2 := crypto.NewArgon2idHash(
+		v.GetUint32("argon.time"),
+		v.GetUint32("argon.mem"),
+		v.GetUint8("argon.threads"),
+		v.GetUint32("argon.keylen"),
+		v.GetUint32("argon.saltlen"),
+	)
 
 	return argon2.GenerateHash([]byte(masterPassword), nil)
 }
 
-func SetPassword(newMasterPassword string, key []byte, store *storage.Storage) error {
+func SetPassword(newMasterPassword string, key []byte, store *storage.Storage, v *viper.Viper) error {
 	vault, err := store.ReadVault(key)
 	if err != nil {
 		return err
 	}
 
-	newHs, err := HashPassword(newMasterPassword)
+	newHs, err := HashPassword(newMasterPassword, v)
 	if err != nil {
 		return err
 	}
@@ -79,7 +92,7 @@ func PromptForPassword() (string, error) {
 // hash out of masterPassword and returns hashSalt struct with the hash and the
 // salt, and encryption key. If file doesn't exists it returns ErrPasswordNotSet.
 // User will be prompted for password if one wasn't provided
-func Authenticate(masterPassword string, store *storage.Storage) (*crypto.HashSalt, []byte, error) {
+func Authenticate(masterPassword string, store *storage.Storage, v *viper.Viper) (*crypto.HashSalt, []byte, error) {
 	var hs *storage.HashSalt
 	var err error
 
@@ -108,7 +121,7 @@ func Authenticate(masterPassword string, store *storage.Storage) (*crypto.HashSa
 			}
 		}
 
-		encryptionKey, err = ValidatePassword(masterPassword, hs)
+		encryptionKey, err = ValidatePassword(masterPassword, hs, v)
 		if err != nil {
 			if errors.Is(err, apperrors.ErrHashNotEqual) {
 				masterPassword = ""

@@ -5,8 +5,6 @@ import (
 	"math/big"
 )
 
-// TODO: configure for max possible sequence of the same character
-
 const (
 	lowerChars   = "abcdefghijklmnopqrstuvwxyz"
 	upperChars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

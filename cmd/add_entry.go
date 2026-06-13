@@ -6,6 +6,7 @@ import (
 	"github.com/blihor/parrot/internal/generator"
 	"github.com/blihor/parrot/internal/storage"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -22,10 +23,10 @@ var cmdAddEntry = &cobra.Command{
         `,
 	Args:             cobra.ExactArgs(1),
 	TraverseChildren: true,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		store := storage.NewStorage()
+	RunE: WithConfig(func(cmd *cobra.Command, args []string, v *viper.Viper) error {
+		store := storage.NewStorage(v.GetString("vault.filepath"))
 
-		hs, key, err := auth.Authenticate(masterPassword, store)
+		hs, key, err := auth.Authenticate(masterPassword, store, v)
 		if err != nil {
 			return err
 		}
@@ -41,8 +42,12 @@ var cmdAddEntry = &cobra.Command{
 		if len(args) > 1 {
 			entryPass = args[1]
 		} else {
-			// TODO: configure generator
-			entryPass, err = generator.GeneratePassword(16, true, true, true)
+			entryPass, err = generator.GeneratePassword(
+				v.GetInt("generator.length"),
+				v.GetBool("generator.upper"),
+				v.GetBool("generator.digits"),
+				v.GetBool("generator.special"),
+			)
 		}
 
 		if err != nil {
@@ -64,7 +69,7 @@ var cmdAddEntry = &cobra.Command{
 		}
 
 		return nil
-	},
+	}),
 }
 
 func init() {

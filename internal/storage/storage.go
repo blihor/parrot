@@ -12,15 +12,6 @@ import (
 	"github.com/blihor/parrot/internal/vault"
 )
 
-var vaultFilePath = os.Expand("$HOME/.vault.json", func(s string) string {
-	if s == "HOME" {
-		home, _ := os.UserHomeDir()
-		return home
-	}
-
-	return os.Getenv(s)
-})
-
 type (
 	Vault    = vault.Vault
 	HashSalt = crypto.HashSalt
@@ -37,9 +28,9 @@ type (
 	}
 )
 
-func NewStorage() *Storage {
+func NewStorage(filepath string) *Storage {
 	return &Storage{
-		VaultFilePath: vaultFilePath,
+		VaultFilePath: filepath,
 	}
 }
 
