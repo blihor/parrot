@@ -2,7 +2,7 @@ CLI tool for managing passwords
 
 # Install
 
-`go get github.com/blihor/parrot`
+`go install github.com/blihor/parrot@latest`
 
 # Setting password
 
